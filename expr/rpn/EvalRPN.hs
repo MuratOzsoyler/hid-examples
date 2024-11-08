@@ -1,6 +1,7 @@
 module EvalRPN where
 
 import Control.Monad.State
+import Data.Foldable (traverse_)
 
 {-
    Function evalRPN evaluates an expression given
@@ -16,7 +17,7 @@ type Stack = [Integer]
 type EvalM = State Stack
 
 push :: Integer -> EvalM ()
-push x = modify (x:)
+push x = modify (x :)
 
 pop :: EvalM Integer
 pop = do
@@ -27,9 +28,9 @@ pop = do
 evalRPN :: String -> Integer
 evalRPN expr = evalState evalRPN' []
   where
-    evalRPN' = traverse step (words expr) >> pop
+    evalRPN' = traverse_ step (words expr) >> pop
     step "+" = processTops (+)
     step "*" = processTops (*)
     step "-" = processTops (-)
-    step t  = push (read t)
+    step t = push (read t)
     processTops op = flip op <$> pop <*> pop >>= push
